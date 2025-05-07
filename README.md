@@ -14,11 +14,16 @@ Algorithm:
 5. If 'Search event' selected, take input and search by name/date
 6. If 'Exit', end program
 7. Repeat from step 2
-Note: A simple flowchart can show user interaction with options and data handling steps.
+
 Features
 - Add new event details
 - View all saved events
-- Search for events by name or date- Simple and menu-driven interface- File storage (optional for saving data)
+- Search for events by name or date- Simple and menu-driven interface- File storage 
+  
 Objectives
 - To introduce students to real-life applications of C programming- To improve understanding of data handling and user interaction
-  Team members Anish ALi (leader); Atif habib; Masooda fatima 
+  
+Conclusion
+The Event Management System project successfully demonstrates the practical application of basic C programming concepts such as structures, arrays, functions, and file handling. It provides a simple yet effective solution for managing small events, allowing users to add, view, and search event details through a user-friendly menu-driven interface. By developing this system, students gain hands-on experience in solving real-world problems using programming logic. This project not only strengthens foundational programming skills but also encourages further exploration into more complex data management systems.
+  
+Team members Anish ALi (leader); Atif habib; Masooda fatima 
