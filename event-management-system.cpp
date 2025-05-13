@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-// Yo! My event system for PF class. I’m new at this, so it’s super basic.
+// My event system for PF class. Iâ€™m new at this, so itâ€™s super basic.
 // Just arrays, no fancy structs or pointers. Using scanf and text files.
 // Gotta set up the arrays first, hope I got this right!
 
@@ -18,7 +18,7 @@ int event_day[MAX_EVENTS]; // Date
 int event_month[MAX_EVENTS];
 int event_year[MAX_EVENTS];
 int event_max_people[MAX_EVENTS]; // How many can join
-int event_people_count[MAX_EVENTS]; // Who’s in
+int event_people_count[MAX_EVENTS]; // Whoâ€™s in
 int event_people[MAX_EVENTS][MAX_PEOPLE_PER_EVENT]; // Attendee list
 char organizer[MAX_EVENTS][MAX_NAME]; // Organizer name
 int event_count = 0; // Total events
@@ -31,7 +31,7 @@ int people_count = 0; // Total people
 // END COMMIT 1
 
 // START COMMIT 2: Adding Events and People
-// Okay, let’s add events and people. This took forever!
+// Okay, letâ€™s add events and people. This took forever!
 
 void add_event() {
     if (event_count == MAX_EVENTS) {
@@ -59,7 +59,7 @@ void add_event() {
     printf("Event %d added!\n", event_nums[i]);
 }
 
-// Okay, let’s add people. This took forever! Added stuff to handle wrong input.
+// Okay, letâ€™s add people. This took forever! Added stuff to handle wrong input.
 void add_people() {
     if (people_count == MAX_PEOPLE) {
         printf("Too many people!\n");
@@ -79,7 +79,7 @@ void add_people() {
     // Check if scanf got a number
     if (scanf("%d", &event_id) != 1) {
         printf("Hey, enter a number, not letters!\n");
-        // Clear the junk from input so it doesn’t mess up later
+        // Clear the junk from input so it doesnâ€™t mess up later
         while (getchar() != '\n'); // I added this to stop it crashing!
         return; // Skip the rest, they messed up
     }
@@ -93,7 +93,7 @@ void add_people() {
             event_people_count[j]++;
             printf("Joined event %d!\n", event_id);
         } else {
-            printf("Event’s full!\n");
+            printf("Eventâ€™s full!\n");
         }
     }
 
@@ -104,7 +104,7 @@ void add_people() {
 // END COMMIT 2
 
 // START COMMIT 3: Saving to Files
-// Gotta save stuff so it doesn’t vanish. Text files are cool!
+// Gotta save stuff so it doesnâ€™t vanish. Text files are cool!
 
 
 void menu() {
