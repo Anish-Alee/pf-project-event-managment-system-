@@ -211,6 +211,48 @@ void show_stuff(int what) {
     }
 }
 
+void delete_event() {
+    // Ask the user which event to delete by its ID
+    printf("Event ID to delete: ");
+    // Create a variable to store the ID the user types
+    int event_id;
+    // Read the ID from the user
+    scanf("%d", &event_id);
+    // Check if the ID is valid (not less than 1 or more than the number of events)
+    if (event_id < 1 || event_id > event_count) {
+        // Oops, that ID doesn’t exist, so tell the user and exit the function
+        printf("No event!\n");
+        return;
+    }
+    // Convert the ID to array index (IDs start at 1, arrays start at 0)
+    int j = event_id - 1;
+    // Shift all events after the deleted one to fill the gap
+    for (int i = j; i < event_count - 1; i++) {
+        // Copy the next event’s ID to the current spot
+        event_nums[i] = event_nums[i + 1];
+        // Copy the next event’s name (using strcpy since it’s a string)
+        strcpy(event_names[i], event_names[i + 1]);
+        // Copy the next event’s day
+        event_day[i] = event_day[i + 1];
+        // Copy the next event’s month
+        event_month[i] = event_month[i + 1];
+        // Copy the next event’s year
+        event_year[i] = event_year[i + 1];
+        // Copy the next event’s max people limit
+        event_max_people[i] = event_max_people[i + 1];
+        // Copy the next event’s current people count
+        event_people_count[i] = event_people_count[i + 1];
+        // Loop through the attendee list and copy each person’s ID
+        for (int k = 0; k < MAX_PEOPLE_PER_EVENT; k++) {
+            event_people[i][k] = event_people[i + 1][k];
+        }
+        // Copy the next event’s organizer name
+        strcpy(organizer[i], organizer[i + 1]);
+    }
+    // Decrease the total event count since we removed one
+    event_count--;
+	}
+
 void find_event() {
     // Ask the user to type a part of the event name to search for
     printf("Part of name: ");
@@ -235,11 +277,11 @@ void find_event() {
     // If we didn’t find any matches (any is still 0), let the user know
     if (!any) printf("Nothing!\n");
 }
- 
- 
- // START COMMIT 5: Menu Time 
-// Menu to run it all. This makes it easy!
 
+// END COMMIT 4
+
+// START COMMIT 5: Menu Time 
+// Menu to run it all. This makes it easy!
 void menu() {
     printf("\n--- Event Management System ---\n");
     printf("1. Add event\n2. Add person\n3. Show events\n4. Show people\n5. Delete event\n6. Find event\n7. Save & quit\n");
@@ -257,12 +299,13 @@ int main() {
         else if (choice == 2) add_people();
         else if (choice == 3) show_stuff(0);
         else if (choice == 4) show_stuff(1);
+        else if (choice == 5) delete_event();
         else if (choice == 6) find_event();
         else if (choice == 7) {
             save_stuff();
             printf("Catch You Later!\n");
             return 0;
-        } else printf("1 to 6 only!\n");
+        } else printf("1 to 7 only!\n");
     }
     return 0;
 }
