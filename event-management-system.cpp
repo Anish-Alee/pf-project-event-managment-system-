@@ -215,6 +215,31 @@ void show_stuff(int what) {
     }
 }
 
+void find_event() {
+    // Ask the user to type a part of the event name to search for
+    printf("Part of name: ");
+    // Make a small array to store the name the user types (up to MAX_NAME characters)
+    char name[MAX_NAME];
+    // Get the name from the user (the space before %s skips any leftover whitespace)
+    scanf(" %s", name);
+    // Print a header to show where the results start
+    printf("\n--- Found ---\n");
+    // Keep track if we found any matching events (0 means none found yet)
+    int any = 0;
+    // Loop through all the events we have (up to event_count)
+    for (int i = 0; i < event_count; i++) {
+        // Check if the user's input is part of the event name using strstr
+        if (strstr(event_names[i], name) != NULL) {
+            // Found a match! Print the event's ID and full name
+            printf("ID: %d, Name: %s\n", event_nums[i], event_names[i]);
+            // Set any to 1 so we know we found something
+            any = 1;
+        }
+    }
+    // If we didn’t find any matches (any is still 0), let the user know
+    if (!any) printf("Nothing!\n");
+}
+
 int main() {
     printf("Welcome To Event Management System!\n");
     load_stuff();
@@ -226,11 +251,12 @@ int main() {
         else if (choice == 2) add_people();
         else if (choice == 3) show_stuff(0);
         else if (choice == 4) show_stuff(1);
+        else if (choice == 6) find_event();
         else if (choice == 7) {
             save_stuff();
             printf("See ya!\n");
             return 0;
-        } else printf("1 to 7 only!\n");
+        } else printf("1 to 6 only!\n");
     }
     return 0;
 }
