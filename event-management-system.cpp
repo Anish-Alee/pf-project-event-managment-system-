@@ -2,14 +2,14 @@
 #include <stdio.h>
 #include <string.h>
 
-// Yo! My event system for PF class. I’m new at this, so it’s super basic.
+// My event system for PF class. I’m new at this, so it’s super basic.
 // Just arrays, no fancy structs or pointers. Using scanf and text files.
 // Gotta set up the arrays first, hope I got this right!
 
-#define MAX_EVENTS 50 // Max events
-#define MAX_PEOPLE 200 // Max people
-#define MAX_NAME 50 // Names
-#define MAX_EVENTS_PER_PERSON 5 // Events per person
+#define MAX_EVENTS 10 // Max events
+#define MAX_PEOPLE 100 // Max people
+#define MAX_NAME 10 // Names
+#define MAX_EVENTS_PER_PERSON 2 // Events per person
 #define MAX_PEOPLE_PER_EVENT 20 // People per event
 
 int event_nums[MAX_EVENTS]; // Event IDs
@@ -42,8 +42,8 @@ void add_event() {
     int i = event_count;
     event_nums[i] = i + 1;
 
-    printf("Event name (one word): ");
-    scanf(" %s", event_names[i]);
+    printf("Event name : ");
+    scanf(" %s", &event_names[i]);
 
     printf("Date (day month year): ");
     scanf("%d %d %d", &event_day[i], &event_month[i], &event_year[i]);
@@ -52,7 +52,7 @@ void add_event() {
     scanf("%d", &event_max_people[i]);
 
     printf("Organizer (one word): ");
-    scanf(" %s", organizer[i]);
+    scanf(" %s", &organizer[i]);
 
     event_people_count[i] = 0;
     event_count++;
@@ -93,7 +93,7 @@ void add_people() {
             event_people_count[j]++;
             printf("Joined event %d!\n", event_id);
         } else {
-            printf("Event’s full!\n");
+            printf("Event is full!\n");
         }
     }
 
@@ -103,13 +103,8 @@ void add_people() {
 }
 // END COMMIT 2
 
-
-
-void menu() {
-    printf("\n--- Event Management System ---\n");
-    printf("1. Add event\n2. Add person\n3. Show events\n4. Show people\n5. Delete event\n6. Find event\n7. Save & quit\n");
-    printf("Pick: ");
-}
+// START COMMIT 3: Saving to Files
+// Gotta save stuff so it doesn’t vanish. Text files are cool!
 
 void save_stuff() {
     FILE* file = fopen("events.txt", "w");
@@ -137,7 +132,7 @@ void save_stuff() {
     }
     fclose(file);
 
-    printf("Yay, saved!\n");
+    printf("Successfully, Saved!\n");
 }
 
 void load_stuff() {
@@ -176,6 +171,7 @@ void load_stuff() {
     }
 }
 // END COMMIT 3
+
 // START COMMIT 4: Showing and Deleting
 // Showing events/people and deleting. Deleting was so hard!
 
@@ -201,7 +197,7 @@ void show_stuff(int what) {
         int j = event_id - 1;
         printf("\n--- People in Event %d ---\n", event_id);
         if (event_people_count[j] == 0) {
-            printf("Nobody’s here.\n");
+            printf("Nobody is here.\n");
         } else {
             for (int i = 0; i < event_people_count[j]; i++) {
                 int pid = event_people[j][i];
@@ -215,6 +211,41 @@ void show_stuff(int what) {
     }
 }
 
+void find_event() {
+    // Ask the user to type a part of the event name to search for
+    printf("Part of name: ");
+    // Make a small array to store the name the user types (up to MAX_NAME characters)
+    char name[MAX_NAME];
+    // Get the name from the user (the space before %s skips any leftover whitespace)
+    scanf(" %s", name);
+    // Print a header to show where the results start
+    printf("\n--- Found ---\n");
+    // Keep track if we found any matching events (0 means none found yet)
+    int any = 0;
+    // Loop through all the events we have (up to event_count)
+    for (int i = 0; i < event_count; i++) {
+        // Check if the user's input is part of the event name using strstr
+        if (strstr(event_names[i], name) != NULL) {
+            // Found a match! Print the event's ID and full name
+            printf("ID: %d, Name: %s\n", event_nums[i], event_names[i]);
+            // Set any to 1 so we know we found something
+            any = 1;
+        }
+    }
+    // If we didn’t find any matches (any is still 0), let the user know
+    if (!any) printf("Nothing!\n");
+}
+ 
+ 
+ // START COMMIT 5: Menu Time 
+// Menu to run it all. This makes it easy!
+
+void menu() {
+    printf("\n--- Event Management System ---\n");
+    printf("1. Add event\n2. Add person\n3. Show events\n4. Show people\n5. Delete event\n6. Find event\n7. Save & quit\n");
+    printf("Pick: ");
+}
+
 int main() {
     printf("Welcome To Event Management System!\n");
     load_stuff();
@@ -226,11 +257,12 @@ int main() {
         else if (choice == 2) add_people();
         else if (choice == 3) show_stuff(0);
         else if (choice == 4) show_stuff(1);
+        else if (choice == 6) find_event();
         else if (choice == 7) {
             save_stuff();
-            printf("See ya!\n");
+            printf("Catch You Later!\n");
             return 0;
-        } else printf("1 to 7 only!\n");
+        } else printf("1 to 6 only!\n");
     }
     return 0;
 }
