@@ -34,28 +34,40 @@ int people_count = 0; // Total people
 // Okay, let’s add events and people. This took forever!
 
 void add_event() {
+    // First, check if there is space to add a new event
     if (event_count == MAX_EVENTS) {
+        // If the event count has reached the maximum limit, display an error message
         printf("No more room!\n");
-        return;
+        return;  // Exit the function since we can't add more events
     }
 
-    int i = event_count;
-    event_nums[i] = i + 1;
+    // Otherwise, proceed to add the event. Set the event number.
+    int i = event_count;  // The index where the new event will be added
+    event_nums[i] = i + 1;  // Event numbers are 1-based (first event gets 1, second event gets 2, etc.)
 
+    // Ask the user for the event name
     printf("Event name : ");
-    scanf(" %s", &event_names[i]);
+    scanf(" %s", &event_names[i]);  // Store the event name at the appropriate index
 
+    // Ask the user to input the date of the event (day, month, year)
     printf("Date (day month year): ");
-    scanf("%d %d %d", &event_day[i], &event_month[i], &event_year[i]);
+    scanf("%d %d %d", &event_day[i], &event_month[i], &event_year[i]);  // Store the date details
 
+    // Ask the user how many people can attend this event
     printf("How many people? ");
-    scanf("%d", &event_max_people[i]);
+    scanf("%d", &event_max_people[i]);  // Store the maximum number of people allowed at the event
 
+    // Ask for the name of the event's organizer (single word)
     printf("Organizer (one word): ");
-    scanf(" %s", &organizer[i]);
+    scanf(" %s", &organizer[i]);  // Store the organizer's name
 
+    // Initialize the count of people attending this event to 0 since it's a new event
     event_people_count[i] = 0;
+
+    // Increase the event count to reflect that a new event has been added
     event_count++;
+
+    // Display a confirmation message showing the event number that was added
     printf("Event %d added!\n", event_nums[i]);
 }
 
