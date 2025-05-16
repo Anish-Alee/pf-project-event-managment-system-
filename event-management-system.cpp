@@ -34,89 +34,95 @@ int people_count = 0; // Total people
 // Okay, let’s add events and people. This took forever!
 
 void add_event() {
-    // First, check if there is space to add a new event
     if (event_count == MAX_EVENTS) {
-        // If the event count has reached the maximum limit, display an error message
         printf("No more room!\n");
-        return;  // Exit the function since we can't add more events
+        return;
     }
 
-    // Otherwise, proceed to add the event. Set the event number.
-    int i = event_count;  // The index where the new event will be added
-    event_nums[i] = i + 1;  // Event numbers are 1-based (first event gets 1, second event gets 2, etc.)
+    int i = event_count;
+    event_nums[i] = i + 1;
 
-    // Ask the user for the event name
     printf("Event name : ");
-    scanf(" %s", &event_names[i]);  // Store the event name at the appropriate index
+    scanf(" %s", &event_names[i]);
 
-    // Ask the user to input the date of the event (day, month, year)
     printf("Date (day month year): ");
-    scanf("%d %d %d", &event_day[i], &event_month[i], &event_year[i]);  // Store the date details
+    scanf("%d %d %d", &event_day[i], &event_month[i], &event_year[i]);
 
-    // Ask the user how many people can attend this event
     printf("How many people? ");
-    scanf("%d", &event_max_people[i]);  // Store the maximum number of people allowed at the event
+    scanf("%d", &event_max_people[i]);
 
-    // Ask for the name of the event's organizer (single word)
     printf("Organizer (one word): ");
-    scanf(" %s", &organizer[i]);  // Store the organizer's name
+    scanf(" %s", &organizer[i]);
 
-    // Initialize the count of people attending this event to 0 since it's a new event
     event_people_count[i] = 0;
-
-    // Increase the event count to reflect that a new event has been added
     event_count++;
-
-    // Display a confirmation message showing the event number that was added
     printf("Event %d added!\n", event_nums[i]);
 }
 
 // Okay, let’s add people. This took forever! Added stuff to handle wrong input.
 void add_people() {
+    // Check if we've hit the maximum number of people allowed
     if (people_count == MAX_PEOPLE) {
         printf("Too many people!\n");
         return;
     }
 
+    // Use the current count as the index for the new person
     int i = people_count;
+    // Assign the next available ID to the new person
     people_ids[i] = i + 1;
 
+    // Prompt for the person's name (one word only)
     printf("Person name (one word): ");
+    // Read the name into the people_names array
     scanf(" %s", people_names[i]);
 
+    // Initialize the event count for this person to zero
     people_event_count[i] = 0;
 
+    // Ask for an event ID to join (0 means skip joining an event)
     printf("Join event ID (0 to skip): ");
     int event_id;
-    // Check if scanf got a number
+    // Check if the input is actually a number
     if (scanf("%d", &event_id) != 1) {
+        // If they entered something other than a number, show an error
         printf("Hey, enter a number, not letters!\n");
-        // Clear the junk from input so it doesn’t mess up later
+        // Clear out any bad input to prevent issues later
         while (getchar() != '\n'); // I added this to stop it crashing!
-        return; // Skip the rest, they messed up
+        return; // Exit the function since the input was invalid
     }
 
+    // If they entered a valid event ID (greater than 0 and within the event count)
     if (event_id > 0 && event_id <= event_count) {
+        // Get the index for the event (event IDs are 1-based, arrays are 0-based)
         int j = event_id - 1;
+        // Check if the event has room for more people
         if (event_people_count[j] < MAX_PEOPLE_PER_EVENT) {
+            // Add the event to the person's event list
             people_events[i][people_event_count[i]] = event_id;
+            // Increment the person's event count
             people_event_count[i]++;
+            // Add the person to the event's people list
             event_people[j][event_people_count[j]] = people_ids[i];
+            // Increment the event's people count
             event_people_count[j]++;
+            // Confirm the person joined the event
             printf("Joined event %d!\n", event_id);
         } else {
+            // If the event is full, let them know
             printf("Event is full!\n");
         }
     }
 
+    // Increment the total people count
     people_count++;
+    // Confirm the person was added with their ID
     printf("Person %d added!\n", people_ids[i]);
-
-}
-// END COMMIT 2
+    }
+	// END COMMIT 2
 
 // START COMMIT 3: Saving to Files
-// Gotta save stuff so it doesn’t vanish. Text files are cool!
+// Gotta save stuff so it doesn’t vanish. 
 
 void save_stuff() {
     FILE* file = fopen("events.txt", "w");
