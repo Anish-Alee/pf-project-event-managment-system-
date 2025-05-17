@@ -125,34 +125,58 @@ void add_people() {
 // Gotta save stuff so it doesn’t vanish. 
 
 void save_stuff() {
+    // Open the events file in write mode to store event data
     FILE* file = fopen("events.txt", "w");
+    
+    // Write the total number of events to the file
     fprintf(file, "%d\n", event_count);
+    
+    // Loop through each event to save its details
     for (int i = 0; i < event_count; i++) {
+        // Save event number, name, date, max people, and current people count
         fprintf(file, "%d %s %d %d %d %d %d ",
                 event_nums[i], event_names[i], event_day[i], event_month[i], event_year[i],
                 event_max_people[i], event_people_count[i]);
+        
+        // Save the list of people attending this event
         for (int j = 0; j < MAX_PEOPLE_PER_EVENT; j++) {
             fprintf(file, "%d ", event_people[i][j]);
         }
+        
+        // Save the organizer's name for this event
         fprintf(file, "%s\n", organizer[i]);
     }
+    
+    // Close the events file
     fclose(file);
 
+    // Open the people file in write mode to store people data
     file = fopen("people.txt", "w");
+    
+    // Write the total number of people to the file
     fprintf(file, "%d\n", people_count);
+    
+    // Loop through each person to save their details
     for (int i = 0; i < people_count; i++) {
+        // Save person ID, name, and number of events they are attending
         fprintf(file, "%d %s %d ",
                 people_ids[i], people_names[i], people_event_count[i]);
+        
+        // Save the list of events this person is attending
         for (int j = 0; j < MAX_EVENTS_PER_PERSON; j++) {
             fprintf(file, "%d ", people_events[i][j]);
         }
+        
+        // Add a newline to separate each person's data
         fprintf(file, "\n");
     }
+    
+    // Close the people file
     fclose(file);
 
+    // Print a confirmation message to the console
     printf("Successfully, Saved!\n");
 }
-
 void load_stuff() {
     FILE* file = fopen("events.txt", "r");
     if (file != NULL) {
