@@ -1,6 +1,0 @@
-5
-1 asma 1 1 0 
-2 zhra 1 1 0 
-3 zeanat 1 3 0 
-4 zeanat 1 2 0 
-5 zeanat 1 3 0 

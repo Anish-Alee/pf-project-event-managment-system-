@@ -177,41 +177,69 @@ void save_stuff() {
     // Print a confirmation message to the console
     printf("Successfully, Saved!\n");
 }
+
 void load_stuff() {
+    // Open the events file for reading
     FILE* file = fopen("events.txt", "r");
+    
+    // Check if the events file was opened successfully
     if (file != NULL) {
+        // Read the total number of events from the file
         fscanf(file, "%d", &event_count);
+        
+        // Loop through each event to read its details
         for (int i = 0; i < event_count; i++) {
+            // Read event number, name, date (day, month, year), max people, and current people count
             fscanf(file, "%d %s %d %d %d %d %d",
                    &event_nums[i], event_names[i], &event_day[i], &event_month[i], &event_year[i],
                    &event_max_people[i], &event_people_count[i]);
+            
+            // Read the list of people attending this event
             for (int j = 0; j < MAX_PEOPLE_PER_EVENT; j++) {
                 fscanf(file, "%d", &event_people[i][j]);
             }
+            
+            // Read the organizer's name for this event
             fscanf(file, "%s", organizer[i]);
         }
+        
+        // Close the events file after reading
         fclose(file);
         printf("Got events!\n");
     } else {
+        // Print an error message if the events file couldn't be opened
         printf("No event file.\n");
     }
 
+    // Open the people file for reading
     file = fopen("people.txt", "r");
+    
+    // Check if the people file was opened successfully
     if (file != NULL) {
+        // Read the total number of people from the file
         fscanf(file, "%d", &people_count);
+        
+        // Loop through each person to read their details
         for (int i = 0; i < people_count; i++) {
+            // Read person ID, name, and the number of events they're attending
             fscanf(file, "%d %s %d",
                    &people_ids[i], people_names[i], &people_event_count[i]);
+            
+            // Read the list of event IDs this person is attending
             for (int j = 0; j < MAX_EVENTS_PER_PERSON; j++) {
                 fscanf(file, "%d", &people_events[i][j]);
             }
         }
+        
+        // Close the people file after reading
         fclose(file);
         printf("Get Registered now!\n");
     } else {
+        // Print an error message if the people file couldn't be opened
         printf("No people file.\n");
     }
 }
+
 // END COMMIT 3
 
 // START COMMIT 4: Showing and Deleting
