@@ -3,380 +3,442 @@
 #include <string.h>
 
 // My event system for PF class. I’m new at this, so it’s super basic.
-// Just arrays, no fancy structs or pointers. Using scanf and text files.
-// Gotta set up the arrays first, hope I got this right!
+// Hope I got this right! 
 
 #define MAX_EVENTS 10 // Max events
-#define MAX_PEOPLE 100 // Max people
-#define MAX_NAME 10 // Names
-#define MAX_EVENTS_PER_PERSON 2 // Events per person
+#define MAX_PEOPLE 200 // Max people
+#define MAX_NAME 20 // Names
 #define MAX_PEOPLE_PER_EVENT 20 // People per event
 
-int event_nums[MAX_EVENTS]; // Event IDs
-char event_names[MAX_EVENTS][MAX_NAME]; // Event names
-int event_day[MAX_EVENTS]; // Date
-int event_month[MAX_EVENTS];
-int event_year[MAX_EVENTS];
-int event_max_people[MAX_EVENTS]; // How many can join
-int event_people_count[MAX_EVENTS]; // Who’s in
-int event_people[MAX_EVENTS][MAX_PEOPLE_PER_EVENT]; // Attendee list
-char organizer[MAX_EVENTS][MAX_NAME]; // Organizer name
+// Arrays to store event info
+int event_ids[MAX_EVENTS]; // Keeps event IDs
+char event_names[MAX_EVENTS][MAX_NAME]; // Stores event names
+int event_day[MAX_EVENTS]; // Day of event
+int event_month[MAX_EVENTS]; // Month of event
+int event_year[MAX_EVENTS]; // Year of event
+int event_capacity[MAX_EVENTS]; // Max people allowed in event
+int event_people_count[MAX_EVENTS]; // How many joined event
+int event_people[MAX_EVENTS][MAX_PEOPLE_PER_EVENT]; // IDs of people in event
 int event_count = 0; // Total events
 
-int people_ids[MAX_PEOPLE]; // People IDs
-char people_names[MAX_PEOPLE][MAX_NAME]; // Names
-int people_events[MAX_PEOPLE][MAX_EVENTS_PER_PERSON]; // Their events
-int people_event_count[MAX_PEOPLE]; // Event count
+// Arrays to store people info
+int people_ids[MAX_PEOPLE]; // Keeps people IDs
+char people_names[MAX_PEOPLE][MAX_NAME]; // Stores people names
+int people_events[MAX_PEOPLE][MAX_EVENTS]; // Events they joined
+int people_event_count[MAX_PEOPLE]; // How many events they joined
 int people_count = 0; // Total people
 // END COMMIT 1
 
-// START COMMIT 2: Adding Events and People
-// Okay, let’s add events and people. This took forever!
+// Clears extra input from keyboard
+void clear_input_buffer() {
+    int ch;
+    while ((ch = getchar()) != '\n' && ch != EOF);
+}
 
+// Checks if date is valid
+int is_valid_date(int d, int m, int y) {
+    // Year should be between 1900 and 2100
+    if (y < 1900 || y > 2100) return 0;
+    // Month should be between 1 and 12
+    if (m < 1 || m > 12) return 0;
+    // Day should not be less than 1
+    if (d < 1) return 0;
+    int max_day = 31; // Default max days
+    // April, June, Sep, Nov have 30 days
+    if (m == 4 || m == 6 || m == 9 || m == 11) max_day = 30;
+    // February logic
+    else if (m == 2) {
+        // Check for leap year
+        if ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)) max_day = 29;
+        else max_day = 28;
+    }
+    // Check if day is valid
+    return d <= max_day;
+} 
+
+// START COMMIT 2: Adding Events and Persons
+// Adds a new event
 void add_event() {
-    if (event_count == MAX_EVENTS) {
-        printf("No more room!\n");
+    // Check if max events reached
+    if (event_count >= MAX_EVENTS) {
+        printf("Reached max events!\n");
         return;
     }
-
-    int i = event_count;
-    event_nums[i] = i + 1;
-
-    printf("Event name : ");
-    scanf(" %s", &event_names[i]);
-
-    printf("Date (day month year): ");
-    scanf("%d %d %d", &event_day[i], &event_month[i], &event_year[i]);
-
-    printf("How many people? ");
-    scanf("%d", &event_max_people[i]);
-
-    printf("Organizer (one word): ");
-    scanf(" %s", &organizer[i]);
-
-    event_people_count[i] = 0;
-    event_count++;
-    printf("Event %d added!\n", event_nums[i]);
+    
+    int idx = event_count; // New event index
+    event_ids[idx] = idx + 1; // Set event ID
+    
+    // Get event name
+    printf("Enter event name (max %d chars): ", MAX_NAME - 1);
+    if (fgets(event_names[idx], MAX_NAME, stdin) == NULL) {
+        printf("Error reading event name.\n");
+        clear_input_buffer();
+        return;
+    }
+    event_names[idx][strcspn(event_names[idx], "\n")] = 0; // Remove newline
+    
+    int d, m, y; // Day, month, year
+    while(1) {
+        // Get event date
+        printf("Enter date (day month year): ");
+        if (scanf("%d %d %d", &d, &m, &y) != 3) {
+            printf("Invalid input!\n");
+            clear_input_buffer();
+            continue;
+        }
+        clear_input_buffer();
+        // Check if date is valid
+        if (!is_valid_date(d, m, y)) {
+            printf("Invalid date! Please enter a valid date.\n");
+            continue;
+        }
+        break;
+    }
+    // Save date
+    event_day[idx] = d; event_month[idx] = m; event_year[idx] = y;
+    
+    int cap; // Event capacity
+    while(1) {
+        // Get max capacity
+        printf("Enter max capacity (max %d): ", MAX_PEOPLE_PER_EVENT);
+        if (scanf("%d", &cap) != 1) {
+            printf("Invalid capacity! Please enter a number.\n");
+            clear_input_buffer();
+            continue;
+        }
+        clear_input_buffer();
+        // Check if capacity is valid
+        if (cap < 1 || cap > MAX_PEOPLE_PER_EVENT) {
+            printf("Capacity must be between 1 and %d.\n", MAX_PEOPLE_PER_EVENT);
+            continue;
+        }
+        break;
+    }
+    event_capacity[idx] = cap; // Save capacity
+    
+    event_people_count[idx] = 0; // No people joined yet
+    
+    printf("Event added with ID %d.\n", event_ids[idx]);
+    event_count++; // Increase event count
 }
 
-// Okay, let’s add people. This took forever! Added stuff to handle wrong input.
-void add_people() {
-    // Check if we've hit the maximum number of people allowed
-    if (people_count == MAX_PEOPLE) {
-        printf("Too many people!\n");
+// Adds a new person
+void add_person() {
+    // Check if max people reached
+    if (people_count >= MAX_PEOPLE) {
+        printf("Max people reached!\n");
         return;
     }
+    int idx = people_count; // New person index
+    people_ids[idx] = idx + 1; // Set person ID
+    
+    // Get person name
+    printf("Enter person name (max %d chars): ", MAX_NAME - 1);
+    if (fgets(people_names[idx], MAX_NAME, stdin) == NULL) {
+        printf("Error reading person name.\n");
+        clear_input_buffer();
+        return;
+    }
+    people_names[idx][strcspn(people_names[idx], "\n")] = 0; // Remove newline
+    
+    int event_id; // Event to join
+    while (1) {
+        // Get event ID (0 to skip)
+        printf("Enter event ID to join (0 to skip): ");
+        if (scanf("%d", &event_id) != 1) {
+            printf("Invalid input! Please enter a number.\n");
+            clear_input_buffer();
+            continue;
+        }
+        clear_input_buffer();
+        // Check if event ID is valid
+        if (event_id < 0 || event_id > event_count) {
+            printf("Invalid event ID! Valid IDs are 0 to %d.\n", event_count);
+            continue;
+        }
+        break;
+    }
+    
+    if (event_id == 0) {
+        // No event joined
+        people_event_count[idx] = 0;
+        printf("Person added without joining an event.\n");
+    } else {
+        int e_idx = event_id - 1; // Event index
+        // Check if event is full
+        if (event_people_count[e_idx] >= event_capacity[e_idx]) {
+            printf("Event full, cannot join.\n");
+            return;
+        }
+        // Add person to event
+        event_people[e_idx][event_people_count[e_idx]] = people_ids[idx];
+        event_people_count[e_idx]++;
+        people_event_count[idx] = 1; // Person joined one event
+        people_events[idx][0] = event_id; // Save event ID
+        printf("Person added and joined event %d.\n", event_id);
+    }
+    people_count++; // Increase people count
+}
+// END COMMIT 2
 
-    // Use the current count as the index for the new person
-    int i = people_count;
-    // Assign the next available ID to the new person
-    people_ids[i] = i + 1;
+// START COMMIT 3: show events and people
+// Shows all events
+void show_events() {
+    // Check if no events
+    if (event_count == 0) {
+        printf("No events available.\n");
+        return;
+    }
+    printf("\nEvents:\n");
+    int i;
+    // Print each event details
+    for (i = 0; i < event_count; i++) {
+        printf("ID: %d, Name: %s, Date: %02d/%02d/%d, Capacity: %d, Joined: %d\n", 
+            event_ids[i], event_names[i], event_day[i], event_month[i], event_year[i], 
+            event_capacity[i], event_people_count[i]);
+    }
+}
 
-    // Prompt for the person's name (one word only)
-    printf("Person name (one word): ");
-    // Read the name into the people_names array
-    scanf(" %s", people_names[i]);
-
-    // Initialize the event count for this person to zero
-    people_event_count[i] = 0;
-
-    // Ask for an event ID to join (0 means skip joining an event)
-    printf("Join event ID (0 to skip): ");
+// Shows people in an event
+void show_people_in_event() {
+    // Check if no events
+    if (event_count == 0) {
+        printf("No events available.\n");
+        return;
+    }
     int event_id;
-    // Check if the input is actually a number
+    // Get event ID
+    printf("Enter event ID to see attendees: ");
     if (scanf("%d", &event_id) != 1) {
-        // If they entered something other than a number, show an error
-        printf("Hey, enter a number, not letters!\n");
-        // Clear out any bad input to prevent issues later
-        while (getchar() != '\n'); // I added this to stop it crashing!
-        return; // Exit the function since the input was invalid
+        printf("Invalid input!\n");
+        clear_input_buffer();
+        return;
     }
-
-    // If they entered a valid event ID (greater than 0 and within the event count)
-    if (event_id > 0 && event_id <= event_count) {
-        // Get the index for the event (event IDs are 1-based, arrays are 0-based)
-        int j = event_id - 1;
-        // Check if the event has room for more people
-        if (event_people_count[j] < MAX_PEOPLE_PER_EVENT) {
-            // Add the event to the person's event list
-            people_events[i][people_event_count[i]] = event_id;
-            // Increment the person's event count
-            people_event_count[i]++;
-            // Add the person to the event's people list
-            event_people[j][event_people_count[j]] = people_ids[i];
-            // Increment the event's people count
-            event_people_count[j]++;
-            // Confirm the person joined the event
-            printf("Joined event %d!\n", event_id);
-        } else {
-            // If the event is full, let them know
-            printf("Event is full!\n");
-        }
+    clear_input_buffer();
+    // Check if event ID is valid
+    if (event_id < 1 || event_id > event_count) {
+        printf("Invalid event ID.\n");
+        return;
     }
-
-    // Increment the total people count
-    people_count++;
-    // Confirm the person was added with their ID
-    printf("Person %d added!\n", people_ids[i]);
+    int idx = event_id - 1; // Event index
+    // Check if no people in event
+    if (event_people_count[idx] == 0) {
+        printf("No attendees for this event yet.\n");
+        return;
     }
-	// END COMMIT 2
-
-// START COMMIT 3: Saving to Files
-// Gotta save stuff so it doesn’t vanish. 
-
-void save_stuff() {
-    // Open the events file in write mode to store event data
-    FILE* file = fopen("events.txt", "w");
-    
-    // Write the total number of events to the file
-    fprintf(file, "%d\n", event_count);
-    
-    // Loop through each event to save its details
-    for (int i = 0; i < event_count; i++) {
-        // Save event number, name, date, max people, and current people count
-        fprintf(file, "%d %s %d %d %d %d %d ",
-                event_nums[i], event_names[i], event_day[i], event_month[i], event_year[i],
-                event_max_people[i], event_people_count[i]);
-        
-        // Save the list of people attending this event
-        for (int j = 0; j < MAX_PEOPLE_PER_EVENT; j++) {
-            fprintf(file, "%d ", event_people[i][j]);
-        }
-        
-        // Save the organizer's name for this event
-        fprintf(file, "%s\n", organizer[i]);
-    }
-    
-    // Close the events file
-    fclose(file);
-
-    // Open the people file in write mode to store people data
-    file = fopen("people.txt", "w");
-    
-    // Write the total number of people to the file
-    fprintf(file, "%d\n", people_count);
-    
-    // Loop through each person to save their details
-    for (int i = 0; i < people_count; i++) {
-        // Save person ID, name, and number of events they are attending
-        fprintf(file, "%d %s %d ",
-                people_ids[i], people_names[i], people_event_count[i]);
-        
-        // Save the list of events this person is attending
-        for (int j = 0; j < MAX_EVENTS_PER_PERSON; j++) {
-            fprintf(file, "%d ", people_events[i][j]);
-        }
-        
-        // Add a newline to separate each person's data
-        fprintf(file, "\n");
-    }
-    
-    // Close the people file
-    fclose(file);
-
-    // Print a confirmation message to the console
-    printf("Successfully, Saved!\n");
-}
-
-void load_stuff() {
-    // Open the events file for reading
-    FILE* file = fopen("events.txt", "r");
-    
-    // Check if the events file was opened successfully
-    if (file != NULL) {
-        // Read the total number of events from the file
-        fscanf(file, "%d", &event_count);
-        
-        // Loop through each event to read its details
-        for (int i = 0; i < event_count; i++) {
-            // Read event number, name, date (day, month, year), max people, and current people count
-            fscanf(file, "%d %s %d %d %d %d %d",
-                   &event_nums[i], event_names[i], &event_day[i], &event_month[i], &event_year[i],
-                   &event_max_people[i], &event_people_count[i]);
-            
-            // Read the list of people attending this event
-            for (int j = 0; j < MAX_PEOPLE_PER_EVENT; j++) {
-                fscanf(file, "%d", &event_people[i][j]);
-            }
-            
-            // Read the organizer's name for this event
-            fscanf(file, "%s", organizer[i]);
-        }
-        
-        // Close the events file after reading
-        fclose(file);
-        printf("Got events!\n");
-    } else {
-        // Print an error message if the events file couldn't be opened
-        printf("No event file.\n");
-    }
-
-    // Open the people file for reading
-    file = fopen("people.txt", "r");
-    
-    // Check if the people file was opened successfully
-    if (file != NULL) {
-        // Read the total number of people from the file
-        fscanf(file, "%d", &people_count);
-        
-        // Loop through each person to read their details
-        for (int i = 0; i < people_count; i++) {
-            // Read person ID, name, and the number of events they're attending
-            fscanf(file, "%d %s %d",
-                   &people_ids[i], people_names[i], &people_event_count[i]);
-            
-            // Read the list of event IDs this person is attending
-            for (int j = 0; j < MAX_EVENTS_PER_PERSON; j++) {
-                fscanf(file, "%d", &people_events[i][j]);
+    // Print event name and people
+    printf("People in event \"%s\":\n", event_names[idx]);
+    int j, k;
+    for (j = 0; j < event_people_count[idx]; j++) {
+        int pid = event_people[idx][j];
+        for (k = 0; k < people_count; k++) {
+            if (people_ids[k] == pid) {
+                printf("ID: %d, Name: %s\n", pid, people_names[k]);
+                break;
             }
         }
-        
-        // Close the people file after reading
-        fclose(file);
-        printf("Get Registered now!\n");
-    } else {
-        // Print an error message if the people file couldn't be opened
-        printf("No people file.\n");
     }
 }
-
 // END COMMIT 3
 
-// START COMMIT 4: Showing and Deleting
-// Showing events/people and deleting. Deleting was so hard!
-
-void show_stuff(int what) {
-    if (what == 0) { // Show events
-        if (event_count == 0) {
-            printf("No events yet!\n");
-            return;
-        }
-        printf("\n--- Events ---\n");
-        for (int i = 0; i < event_count; i++) {
-            printf("ID: %d, Name: %s, Date: %d/%d/%d\n",
-                   event_nums[i], event_names[i], event_day[i], event_month[i], event_year[i]);
-        }
-    } else { // Show people
-        printf("Event ID: ");
-        int event_id;
-        scanf("%d", &event_id);
-        if (event_id < 1 || event_id > event_count) {
-            printf("Wrong ID!\n");
-            return;
-        }
-        int j = event_id - 1;
-        printf("\n--- People in Event %d ---\n", event_id);
-        if (event_people_count[j] == 0) {
-            printf("Nobody is here.\n");
-        } else {
-            for (int i = 0; i < event_people_count[j]; i++) {
-                int pid = event_people[j][i];
-                for (int k = 0; k < people_count; k++) {
-                    if (people_ids[k] == pid) {
-                        printf("ID: %d, Name: %s\n", people_ids[k], people_names[k]);
-                    }
-                }
-            }
-        }
-    }
-}
-
+// START COMMIT 4: Deleting
+// Deletes an event
 void delete_event() {
-    // Ask the user which event to delete by its ID
+    // Get event ID to delete
     printf("Event ID to delete: ");
-    // Create a variable to store the ID the user types
     int event_id;
-    // Read the ID from the user
-    scanf("%d", &event_id);
-    // Check if the ID is valid (not less than 1 or more than the number of events)
-    if (event_id < 1 || event_id > event_count) {
-        // Oops, that ID doesn’t exist, so tell the user and exit the function
-        printf("No event!\n");
+    if (scanf("%d", &event_id) != 1) {
+        printf("Invalid input!\n");
+        clear_input_buffer();
         return;
     }
-    // Convert the ID to array index (IDs start at 1, arrays start at 0)
-    int j = event_id - 1;
-    // Shift all events after the deleted one to fill the gap
+    clear_input_buffer();
+    // Check if event ID is valid
+    if (event_id < 1 || event_id > event_count) {
+        printf("No such event!\n");
+        return;
+    }
+    int j = event_id - 1; // Event index
+    // Shift events to remove the deleted one
     for (int i = j; i < event_count - 1; i++) {
-        // Copy the next event’s ID to the current spot
-        event_nums[i] = event_nums[i + 1];
-        // Copy the next event’s name (using strcpy since it’s a string)
+        event_ids[i] = event_ids[i + 1];
         strcpy(event_names[i], event_names[i + 1]);
-        // Copy the next event’s day
         event_day[i] = event_day[i + 1];
-        // Copy the next event’s month
         event_month[i] = event_month[i + 1];
-        // Copy the next event’s year
         event_year[i] = event_year[i + 1];
-        // Copy the next event’s max people limit
-        event_max_people[i] = event_max_people[i + 1];
-        // Copy the next event’s current people count
+        event_capacity[i] = event_capacity[i + 1];
         event_people_count[i] = event_people_count[i + 1];
-        // Loop through the attendee list and copy each person’s ID
         for (int k = 0; k < MAX_PEOPLE_PER_EVENT; k++) {
             event_people[i][k] = event_people[i + 1][k];
         }
-        // Copy the next event’s organizer name
-        strcpy(organizer[i], organizer[i + 1]);
     }
-    // Decrease the total event count since we removed one
-    event_count--;
-	}
-
-void find_event() {
-    // Ask the user to type a part of the event name to search for
-    printf("Part of name: ");
-    // Make a small array to store the name the user types (up to MAX_NAME characters)
-    char name[MAX_NAME];
-    // Get the name from the user (the space before %s skips any leftover whitespace)
-    scanf(" %s", name);
-    // Print a header to show where the results start
-    printf("\n--- Found ---\n");
-    // Keep track if we found any matching events (0 means none found yet)
-    int any = 0;
-    // Loop through all the events we have (up to event_count)
-    for (int i = 0; i < event_count; i++) {
-        // Check if the user's input is part of the event name using strstr
-        if (strstr(event_names[i], name) != NULL) {
-            // Found a match! Print the event's ID and full name
-            printf("ID: %d, Name: %s\n", event_nums[i], event_names[i]);
-            // Set any to 1 so we know we found something
-            any = 1;
-        }
-    }
-    // If we didn’t find any matches (any is still 0), let the user know
-    if (!any) printf("Nothing!\n");
+    event_count--; // Decrease event count
+    printf("Event deleted.\n");
 }
-
 // END COMMIT 4
 
-// START COMMIT 5: Menu Time 
-// Menu to run it all. This makes it easy!
-void menu() {
-    printf("\n--- Event Management System ---\n");
-    printf("1. Add event\n2. Add person\n3. Show events\n4. Show people\n5. Delete event\n6. Find event\n7. Save & quit\n");
-    printf("Pick: ");
+// START COMMIT 5: FINDING EVENTS
+// Finds events by name
+void find_event() {
+    // Check if no events
+    if (event_count == 0) {
+        printf("No events to search.\n");
+        return;
+    }
+    char query[MAX_NAME];
+    // Get search query
+    printf("Enter part of the event name to search: ");
+    if (fgets(query, MAX_NAME, stdin) == NULL) {
+        printf("Error reading input.\n");
+        clear_input_buffer();
+        return;
+    }
+    query[strcspn(query, "\n")] = 0; // Remove newline
+    // Check if query is empty
+    if (strlen(query) == 0) {
+        printf("Search query cannot be empty.\n");
+        return;
+    }
+    int found = 0;
+    int i;
+    printf("Events matching '%s':\n", query);
+    // Search for events with matching name
+    for (i = 0; i < event_count; i++) {
+        if (strstr(event_names[i], query) != NULL) {
+            printf("ID: %d, Name: %s, Date: %02d/%02d/%d\n", 
+                    event_ids[i], event_names[i], event_day[i], event_month[i], event_year[i]);
+            found = 1;
+        }
+    }
+    // If no matches found
+    if (!found) {
+        printf("No events found matching '%s'.\n", query);
+    }
 }
+// END COMMIT 5
 
+// START COMMIT 6: SAVING DATA
+// Saves data to files
+void save_data() {
+    // Save events to file
+    FILE *f = fopen("events.txt", "w");
+    if (!f) {
+        printf("Error opening events.txt for saving.\n");
+        return;
+    }
+    fprintf(f, "%d\n", event_count);
+    for (int i=0; i<event_count; i++) {
+        fprintf(f, "%d %s %d %d %d %d %d ", event_ids[i], event_names[i], event_day[i], event_month[i], event_year[i], event_capacity[i], event_people_count[i]);
+        for (int j=0; j<event_people_count[i]; j++) {
+            fprintf(f, "%d ", event_people[i][j]);
+        }
+        fprintf(f, "\n");
+    }
+    fclose(f);
+
+    // Save people to file
+    f = fopen("people.txt", "w");
+    if (!f) {
+        printf("Error opening people.txt for saving.\n");
+        return;
+    }
+    fprintf(f, "%d\n", people_count);
+    for(int i=0; i<people_count; i++) {
+        fprintf(f, "%d %s %d ", people_ids[i], people_names[i], people_event_count[i]);
+        for(int j = 0; j < people_event_count[i]; j++) {
+            fprintf(f, "%d ", people_events[i][j]);
+        }
+        fprintf(f, "\n");
+    }
+    fclose(f);
+    printf("Data saved successfully!\n");
+}
+// END COMMIT 6
+
+// START COMMIT 7: LOADING DATA
+// Loads data from files
+void load_stuff() {
+    // Load events
+    FILE* file = fopen("events.txt", "r");
+    if (file != NULL) {
+        fscanf(file, "%d", &event_count);
+        for (int i = 0; i < event_count; i++) {
+            fscanf(file, "%d %s %d %d %d %d %d",
+                   &event_ids[i], event_names[i], &event_day[i], &event_month[i], &event_year[i],
+                   &event_capacity[i], &event_people_count[i]);
+            for (int j = 0; j < event_people_count[i]; j++) {
+                fscanf(file, "%d", &event_people[i][j]);
+            }
+        }
+        fclose(file);
+        printf("Got events!\n");
+    } else {
+        printf("No event file.\n");
+    }
+
+    // Load people
+    file = fopen("people.txt", "r");
+    if (file != NULL) {
+        fscanf(file, "%d", &people_count);
+        for (int i = 0; i < people_count; i++) {
+            fscanf(file, "%d %s %d",
+                   &people_ids[i], people_names[i], &people_event_count[i]);
+            for (int j = 0; j < people_event_count[i]; j++) {
+                fscanf(file, "%d", &people_events[i][j]);
+            }
+        }
+        fclose(file);
+        printf("Get Registered now!\n");
+    } else {
+        printf("No people file.\n");
+    }
+}
+//END COMMIT 7 
+
+//START COMMIT 8: SHOWING MENU 
+// Main program
 int main() {
     printf("Welcome To Event Management System!\n");
-    load_stuff();
-    int choice;
-    while (1) {
-        menu();
-        scanf("%d", &choice);
-        if (choice == 1) add_event();
-        else if (choice == 2) add_people();
-        else if (choice == 3) show_stuff(0);
-        else if (choice == 4) show_stuff(1);
-        else if (choice == 5) delete_event();
-        else if (choice == 6) find_event();
-        else if (choice == 7) {
-            save_stuff();
-            printf("Catch You Later!\n");
-            return 0;
-        } else printf("1 to 7 only!\n");
+    load_stuff(); // Load saved data
+    printf("\n--- Event Management System ---\n");
+    while(1) {
+        // Show menu
+        printf("1. Add Event\n");
+        printf("2. Add Person\n");
+        printf("3. Show Events\n");
+        printf("4. Show People in Event\n");
+        printf("5. Delete Event by ID\n");
+        printf("6. Find Event by Name\n");
+        printf("7. Save Data\n");
+        printf("8. Exit\n");
+        printf("Choose option: ");
+        
+        int choice;
+        // Get user choice
+        if (scanf("%d", &choice) != 1) {
+            printf("Invalid input! Please enter a number.\n");
+            clear_input_buffer();
+            continue;
+        }
+        clear_input_buffer();
+
+        // Run selected option
+        switch(choice) {
+            case 1: add_event(); break;
+            case 2: add_person(); break;
+            case 3: show_events(); break;
+            case 4: show_people_in_event(); break;
+            case 5: delete_event(); break;
+            case 6: find_event(); break;
+            case 7: save_data(); break;
+            case 8:
+                save_data(); // Save before exit
+                printf("Exiting program.\n");
+                return 0;
+            default:
+                printf("Invalid option! Please try again.\n");
+        }
     }
     return 0;
 }
-// END COMMIT 5
+// END COMMIT 8
